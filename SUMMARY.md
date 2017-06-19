@@ -4,4 +4,5 @@
 * [代码规范](chapter1.md)
 * [工程化](gong-cheng-hua.md)
 * [Redux实践](reduxshi-jian.md)
+* [路由、导航与权限](lu-you-3001-dao-hang-yu-quan-xian.md)
 
