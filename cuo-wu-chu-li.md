@@ -8,8 +8,8 @@
 
 总结起来有两个问题需要解决：
 
-* 怎么**使用**通用处理逻辑
-* 怎么**跳过**通用处理逻辑
+* 如何**使用**通用处理逻辑
+* 如何**跳过**通用处理逻辑
 
 ## 反例集锦
 
@@ -68,7 +68,7 @@
 
 它解决了方案二的第1点问题，却让第2点问题变得更加严重了。
 
-## 基于元数据拦截
+## 基于元数据处理
 
 通过以上几种常见方案的分析，比较完善的错误处理需要具备如下特点：
 
@@ -171,38 +171,45 @@ const customizedAction = createAsyncAction(
 
 在上面errorMiddleWare的代码中，我们使用了`COMMON_ERROR`来触发通用错误处理，接下来的流程就是标准的用reducer响应action并修改状态，这是标准的redux流程，用它作演示是因此它最清晰、耦合度最低。
 
-实际项目中，也可以视项目情况，直接将部分逻辑放在errorMiddleware中：
+实际项目中，也可以视项目情况，直接将部分逻辑调用放在errorMiddleware中：
 
 ```js
-function errorMiddleWare({dispatch}) {
-  return next => action => {
-    const asyncStep = _.get(action, 'meta.asyncStep');
-    const omitError = _.get(action, 'meta.omitError'); //是否跳过
+export const commonErrorHandler = function(dispatch, error) {
+  if (error.response && error.response.status === 401) {
+    userStorage.removeUser()
+      .then(() => dispatch(routerActions.replace({
+        path: '/sign-in',
+        query: { reason: '401' },
+      })));
+  } else {
+    dispatch(modalActions.showToastAlert({
+      text: getErrorMessage(error),
+      isError: true,
+      timeout: 3000,
+    }));
+  }
+}
 
-    if (!omitError && asyncStep === ASYNC_PHASES.FAILED) {
+export function errorMiddleWare({ dispatch }) {
+  return next => (action) => {
+    const asyncStep = _.get(action, 'meta.asyncPhase');
+    const omitError = _.get(action, 'meta.omitError');
+
+    if (asyncStep === ASYNC_PHASES.FAILED && !omitError) {
       const { payload: error } = action;
 
-      if (error.response && error.response.status === 401) {
-        userStorage.removeUser()
-          .then(() => dispatch(routerActions.replace({
-            path: '/sign-in',
-            query: { reason: '401' },
-          })));
-      } else {
-        dispatch(modalActions.showToastAlert({
-          text: getErrorMessage(error), //提取错误信息
-          isError: true,
-          timeout: 3000,
-        }));
-      }
+      commonErrorHandler(dispatch, error);
     }
-    
+
     return next(action);
-  }
+  };
 }
 ```
 
-需要注意getErrorMessage函数，在通用错误处理逻辑中，不可避免的会有类似的函数，从经验上这个函数最好既能接受api请求错误，也能处理普通的Error对象：
+需要注意两点：
+
+1. commonErrorHandler函数，即通用错误处理函数，最好封装并暴露给外部，因为很多"自定义错误处理"其实只希望特殊处理一部分错误，而剩下的部分还是回归通用。比如某个API会返回一个特殊错误，需要特殊处理，但像401这些错误还是需要调用通用逻辑处理的。这就需要通用的逻辑必须封装并暴露出去以便调用。
+2. getErrorMessage函数，在通用错误处理逻辑中，不可避免的会有类似的函数，从经验上这个函数最好既能接受api请求错误，也能处理普通的Error对象：
 
 ```js
 export const getErrorMessage = error => (
@@ -226,4 +233,81 @@ const action = createAsyncAction(
 ```
 
 ### 自定义错误处理
+
+上面的代码中，我们演示了如何通过定制meta来跳过通用的错误处理。那自定义的错误处理怎么写呢？
+
+答案是：没有任何特别，只需要走标准的Redux流程即可：
+
+```js
+const customizedAction = createAsyncAction(
+  'GET_USER', 
+  promiseCreator, 
+  (payload, defaultMeta) => {
+    return { ...defaultMeta, omitError: true }; 
+  }
+)
+
+function yourReducer(oldState, action) {
+  switch(action.type) {
+    // other logics
+    case GET_USER_FAILED: return getFailureState();
+    default: return oldState
+  }
+}
+
+```
+
+> 注：无论是否跳过通用处理，经过errorMiddleware的action都没有消失，而是照常传递给了下一环——正常情况下，仍然会进入store。所以无论上面的代码是否定制了meta，reducer中处理FAILED的代码都会执行。
+
+还有一种情况，就是自定义的错误处理也涉及一些负作用，纯函数的reducer无法处理。
+
+这时候有两种方式：
+
+一、在promiseCreator中处理，借助其第二个参数dispatch触发带副作用的action
+
+```js
+const customizedAction = createAsyncAction(
+  'GET_USER', 
+  (syncPayload, dispatch)=> getData().then(
+    data=> data,
+    error=> {
+      if (error.needRedirect) {
+        dispatch(routerAction.replace('/foo'))
+      } else {
+        commonErrorHandler(dispatch, error); //调用通用处理
+      }
+    },
+  ), 
+  (payload, defaultMeta) => {
+    return { ...defaultMeta, omitError: true }; 
+  }
+)
+```
+
+二、借助chainnable action处理
+
+```js
+class YourPage extends Component {
+  handleEvent() {
+    customizedAction().then(
+      successHandler() {}, 
+      customHandler() {}
+    )
+  }
+  render() {/* render page */}
+}
+connect(configs)(YourPage)
+```
+
+chainnable action是redux-action-tools留出的一个扩展点：在redux中，由于reducer不能处理副作用，导致需要串行的副作用只能放在action或view层，具体的选择视场景而异，如果要在view层做，则异步action本身必须也返回一个promise——即chainnalbe。
+
+上例就是借助了chainnable action实现在view层进行处理。
+
+### 小结
+
+错误处理虽然不起眼，却包含了非常复杂的场景——既要有默认统一的处理，又要支持不同程度的定制化。
+
+基于元数据处理是目前为止各方面都比较理想的错误处理方案：侵入性低、容错度高、可配置可组合。
+
+同时，它是一种思路，并不限于redux、更不限于redux-action-tools——相似的思路甚至可以在reflux上实现。
 
