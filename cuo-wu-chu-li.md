@@ -303,6 +303,8 @@ chainnable action是redux-action-tools留出的一个扩展点：在redux中，�
 
 上例就是借助了chainnable action实现在view层进行处理。
 
+> 这其实是不太符合redux理念，但又不得已而为之的后门，滥用很可能造成维护性的显著降低
+
 ### 小结
 
 错误处理虽然不起眼，却包含了非常复杂的场景——既要有默认统一的处理，又要支持不同程度的定制化。
