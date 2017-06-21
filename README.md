@@ -20,7 +20,7 @@
 * [React](https://facebook.github.io/react/) : 视图层
 * [Redux](reduxjs.org) : 状态管理
 * [Lodash](lodash.com/docs) : 工具函数库
-* [sass](http://sass-lang.com/) : CSS预处理，本项目使用scss后缀
+* [Less](http://lesscss.org/) : CSS预处理
 * [bootstrap](getbootstrap.com) : 基础样式
 * [React-Router](https://reacttraining.com/react-router/) : 路由 **可能替换**
 * [Dyson](https://github.com/webpro/dyson) : API数据Mock
