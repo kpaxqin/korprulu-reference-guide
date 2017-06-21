@@ -42,6 +42,8 @@ export function loadingMiddleWare({ dispatch }) {
 }
 ```
 
+由于loading的展示通常不涉及副作用，这部分代码更加简洁，只需要派发相关的action去触发通用loading的展示逻辑。
+
 类似错误处理中的omitError，loadingMiddleware也提供了omitLoading来跳过通过的loading展示。
 
 特别需要注意的是，在定制meta时，通过删除或修改`meta.asyncPhase`同样能达到跳过通过处理的效果，但这会导致一损俱损——所有依赖`meta.asyncPhase`的中间件都会受影响。因此，无论是loadingMiddleware还是errorMiddleware，"跳过"配置都被设计为增量属性。
