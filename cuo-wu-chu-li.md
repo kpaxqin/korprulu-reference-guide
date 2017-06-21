@@ -311,5 +311,5 @@ chainnable action是redux-action-tools留出的一个扩展点：在redux中，�
 
 基于元数据处理是目前为止各方面都比较理想的错误处理方案：侵入性低、容错度高、可配置可组合。
 
-同时，它是一种思路，并不限于redux、更不限于redux-action-tools——相似的思路甚至可以在reflux上实现。
+同时，它是一种思路，并不限于redux、更不限于redux-action-tools——事实上这个思路最初的实现是在reflux上。
 

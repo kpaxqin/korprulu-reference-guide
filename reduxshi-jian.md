@@ -4,7 +4,7 @@
 
 在入门示例中，我们使用了withRedux为页面初始化Redux。有Redux经验的开发者应该会感到奇怪，在社区常见的实践中，页面只需要connect，初始化Redux应该是在应用的最顶层。
 
-这里是我们结合使用Redux/Reflux的经验和对Redux的理解，在实践上做的裁剪与变形，具体见：[Redux状态管理之痛点、分析与改良](https://segmentfault.com/a/1190000009540007)
+这里是我们结合使用Redux/Reflux的经验和对Redux的理解，在实践上做的裁剪与变形，具体见：[Redux状态管理之痛点、分析与改良](https://zhuanlan.zhihu.com/p/27093191)
 
 ## 异步与请求
 
@@ -53,9 +53,9 @@ const CategorySelect = connectPromise({
 })(Select);
 ```
 
-### 方案
+### ActionCreator方案
 
-由于Redux官方没有直接提供异步支持，目前所有的异步方案都是基于中间件的第三方方案。
+由于Redux官方没有直接提供异步支持，目前所有的异步处理都是基于中间件的第三方方案。
 
 本项目使用[redux-action-tools](https://github.com/kpaxqin/redux-action-tools)作为Redux配套的异步库，详细的分析与思路见[Redux异步方案选型](https://zhuanlan.zhihu.com/p/24337401?group_id=850351553125711872)
 
@@ -66,4 +66,4 @@ const CategorySelect = connectPromise({
 * 低学习负担和依赖 
 * 对异步的三个阶段(初始、成功、失败)提供聚类信息方便拦截
 
-在接下来讲解loading和error处理的章节中我们会更深入地使用和了解它。
+在接下来讲解loading和错误处理的章节中我们会更深入地使用和了解它。
