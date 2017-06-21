@@ -290,8 +290,8 @@ const customizedAction = createAsyncAction(
 class YourPage extends Component {
   handleEvent() {
     customizedAction().then(
-      successHandler() {}, 
-      customHandler() {}
+      handleSuccessInView() {}, 
+      handleFailureInView() {}
     )
   }
   render() {/* render page */}
@@ -299,11 +299,15 @@ class YourPage extends Component {
 connect(configs)(YourPage)
 ```
 
-chainnable action是redux-action-tools留出的一个扩展点：在redux中，由于reducer不能处理副作用，导致需要串行的副作用只能放在action或view层，具体的选择视场景而异，如果要在view层做，则异步action本身必须也返回一个promise——即chainnalbe。
+chainnable action是redux-action-tools留出的一个扩展点，类似的功能社区的redux-thunk/redux-promise都有提供。
+
+> 在redux中，由于reducer不能处理副作用，导致需要串行的副作用只能放在action或view层，具体的选择视场景而异，如果要在view层做，则异步action本身必须也返回一个promise——即chainnalbe。
+>
+> 这其实是不太符合redux理念，但又不得已而为之的后门，**滥用很可能造成可维护性的显著降低**
+
 
 上例就是借助了chainnable action实现在view层进行处理。
 
-> 这其实是不太符合redux理念，但又不得已而为之的后门，滥用很可能造成维护性的显著降低
 
 ### 小结
 
