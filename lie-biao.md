@@ -97,7 +97,7 @@ export default connectListView({
 
 上述对`mapLocationToSearch`和`mapLocationToRequest`的定制都是通过简单的函数组合实现的，非常简单直接。
 
-可能有人要问这两个函数高度相似，为什么不想办法合并？事实上这种相似只是上述场景下的特例，还有其它的场景，比如对请求数据做格式转换，只需要一个函数就能解决问题：
+可能有人要问这两个函数高度相似，为什么不想办法合并？事实上这种相似只是上述场景下的特例，还有其它的场景，比如对请求数据做格式转换，就只会用到`mapLocationToRequest`：
 
 ```js
 mapLocationToRequest(location) {
