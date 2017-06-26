@@ -196,14 +196,11 @@ export default decorator(Login);
 
 以上是实现第一点需求的过程，这个需求最简单，适合理解整体架构。
 
-对于第二、三点需求，由于都是对*已登录*用户的鉴权，实践中通常做到一起，同时还承担了`派发action向store中注入user信息`的职责，因此相对复杂：
+对于第二、三点需求，都是对*已登录*用户的鉴权，实践中可以通过调用来进行组合：
 
 ```js
 const checkLogin = props => userStorage.getUser()
-  .then((data) => {
-    props.dispatch(accountActions.ensureUser(data)); // 派发action向store中注入user信息
-    return data;
-  }, (e) => {
+  .then(data=> data, (e) => {
     props.dispatch(routerActions.replace(routes.SIGN_IN));
     throw e;
   });
@@ -223,4 +220,3 @@ const checkPermission = props => checkLogin(props)
 const connectCheckPermission = connectAuthCheck(checkPermission);
 ```
 
-这里确实违反了**单一职责原则**，但这部分代码本身复杂度不高，变化可能也非常低，在这里付出一些dirty，换quick和easy是可以接受的。
