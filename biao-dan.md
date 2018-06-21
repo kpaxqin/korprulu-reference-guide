@@ -8,6 +8,13 @@
 
 以下三个示例比较典型，需要重点关注：
 
-* 同步校验: http://redux-form.com/6.7.0/examples/syncValidation/
-* 异步校验: http://redux-form.com/6.7.0/examples/asyncValidation/
-* 动态表单: http://redux-form.com/6.7.0/examples/fieldArrays/
+* 同步校验: [http://redux-form.com/6.7.0/examples/syncValidation/](http://redux-form.com/6.7.0/examples/syncValidation/)
+* 异步校验: [http://redux-form.com/6.7.0/examples/asyncValidation/](http://redux-form.com/6.7.0/examples/asyncValidation/)
+* 动态表单: [http://redux-form.com/6.7.0/examples/fieldArrays/](http://redux-form.com/6.7.0/examples/fieldArrays/)
+
+
+
+
+
+更新：目前redux-form的作者推出了final-form，部分设计很有意思，可以观望
+
